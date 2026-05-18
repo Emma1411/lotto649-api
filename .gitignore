@@ -1,0 +1,29 @@
+# env / secrets
+.env
+.env.local
+.env.*.local
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# virtual env
+.venv/
+venv/
+
+# ide (pycharm)
+.idea/
+*.iml
+
+# test / cache
+.pytest_cache/
+.mypy_cache/
+
+# logs
+*.log
+
+# os
+.DS_Store
+Thumbs.db
