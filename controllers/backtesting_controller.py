@@ -1,6 +1,10 @@
 from fastapi import APIRouter
 from utils.db_query import DBQuery
 from utils.response import success, error, paginate
+import subprocess
+import threading
+
+
 
 
 # routes backtesting
@@ -10,6 +14,7 @@ router = APIRouter(
 )
 
 db = DBQuery("backtesting")
+backtesting_status = {"running": False, "message": "idle"}
 
 
 # liste des backtests avec pagination
@@ -73,3 +78,30 @@ def derniere_performance():
 
     except Exception as e:
         return error(str(e))
+
+@router.post("/lancer")
+def lancer_backtesting():
+    global backtesting_status
+
+    if backtesting_status["running"]:
+        return error("Un backtesting est déjà en cours")
+
+    def run():
+        global backtesting_status
+        backtesting_status = {"running": True, "message": "En cours..."}
+        try:
+            subprocess.run([
+                "python",
+                r"C:\Users\Administrator\PycharmProjects\lotto649\src\ml\backtesting.py"
+            ], check=True)
+            backtesting_status = {"running": False, "message": "Terminé avec succès"}
+        except Exception as e:
+            backtesting_status = {"running": False, "message": f"Erreur: {str(e)}"}
+
+    threading.Thread(target=run, daemon=True).start()
+    return success({"message": "Backtesting lancé en arrière-plan"})
+
+
+@router.get("/status")
+def get_status():
+    return success(backtesting_status)
